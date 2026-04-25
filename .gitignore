@@ -1,0 +1,12 @@
+.vscode
+uv.lock
+email.html
+
+.env
+.venv/
+venv/
+env/
+
+__pycache__/
+*.pyc
+*.pyo

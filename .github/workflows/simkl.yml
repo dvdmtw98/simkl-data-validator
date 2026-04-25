@@ -1,0 +1,62 @@
+name: Validate Simkl Data
+
+on:
+  schedule:
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+
+jobs:
+  simkl-validate:
+    name: Validate Simkl Data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        id: checkout-code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: simkl
+
+      - name: Setup Python
+        id: setup-python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        id: install-dependencies
+        run: pip install -r simkl/requirements.txt
+
+      - name: Run Script
+        id: run-script
+        run: cd simkl && python scripts/simkl_validate.py
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Commit JSON
+        id: commit-json
+        shell: bash
+        run: |
+          cd simkl
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/*.json
+          git commit -m "Updated JSON: $(date +"%Y-%m-%d %H:%M")" && git push || echo "No Changes"
+
+      - name: Send Email
+        id: send-email
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Simkl Validation Report (${{ env.REMOVED_COUNT }} items)
+          to: dvdmtw99@gmail.com
+          from: dvdmtw@gmail.com
+          html_body: file://simkl/data/email.html
