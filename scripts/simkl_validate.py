@@ -2,6 +2,7 @@
 Script to check if any item has been removed from Simkl
 """
 
+import sys
 import json
 import os
 from datetime import datetime
@@ -251,6 +252,7 @@ def main():
     access_token = os.getenv("ACCESS_TOKEN")
     if not client_id or not access_token:
         print("Missing required Tokens. Existing...")
+        sys.exit(1)
 
     simkl_id_file = os.path.join("data", "simkl_ids.json")
     old_data = load_json_data(simkl_id_file)
