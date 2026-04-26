@@ -161,7 +161,7 @@ def build_html_table(items):
                    style="background:white; border-radius:8px; border:1px solid #ddd;">
                 <tr>
                     <td align="center" style="font-size:20px; font-weight:bold; color:#2d3748;">
-                        Simkl Check Report
+                        Simkl Removal Report
                     </td>
                 </tr>
                 <tr>
@@ -172,7 +172,7 @@ def build_html_table(items):
                 <tr>
                     <td align="center" style="padding:30px;">
                         <div style="font-size:18px; color:#38a169; font-weight:bold;">
-                            Nothing was Deleted 🎉
+                            No Deletion 🎉
                         </div>
                         <div style="color:#718096; margin-top:10px;">
                             Your list is intact. No changes detected.

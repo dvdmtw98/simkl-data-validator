@@ -56,7 +56,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: Simkl Validation Report (${{ env.REMOVED_COUNT }} items)
+          subject: Simkl Removal Report (${{ env.REMOVED_COUNT }} items)
           to: dvdmtw99@gmail.com
           from: dvdmtw@gmail.com
           html_body: file://simkl/data/email.html
