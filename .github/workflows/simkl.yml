@@ -50,13 +50,14 @@ jobs:
 
       - name: Send Email
         id: send-email
+        if: ${{ fromJSON(env.REMOVED_COUNT) > 0 }}
         uses: dawidd6/action-send-mail@v6
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: Simkl Removal Report (${{ env.REMOVED_COUNT }} items)
+          subject: Simkl Media Removal Report
           to: dvdmtw99@gmail.com
           from: dvdmtw@gmail.com
           html_body: file://simkl/data/email.html
