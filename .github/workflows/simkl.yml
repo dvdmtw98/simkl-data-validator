@@ -35,7 +35,7 @@ jobs:
         run: cd simkl && python scripts/simkl_validate.py
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
 
       - name: Commit JSON
         id: commit-json

@@ -10,7 +10,33 @@ from datetime import datetime
 import requests
 from dotenv import load_dotenv
 
+from simkl_authentication import get_refresh_token
+
 API_URL = "https://api.simkl.com"
+
+
+def simkl_url_parameters(client_id):
+    """
+    Add necessary parameters to Simkl URL
+    """
+
+    return {
+        "client_id": f"{client_id}",
+        "app-name": "simkl-data-validator",
+        "app-version": "1.0"
+    }
+
+
+def simkl_request_headers(access_token):
+    """
+    Build the header required by Simkl API
+    """
+
+    return {
+        "Content-Type": "application/json",
+        "User-Agent": "simkl-data-validator/1.0",
+        "Authorization": f"Bearer {access_token}"
+    }
 
 
 def set_github_env(key, value):
@@ -28,8 +54,11 @@ def set_github_env(key, value):
 def fetch_activities(access_token, client_id):
     """Function to fetch Simkl activities dates"""
 
+    headers = simkl_request_headers(access_token)
+    params = simkl_url_parameters(client_id)
+
     url = f"{API_URL}/sync/activities"
-    response = requests.post(url, headers=build_headers(access_token, client_id), timeout=10)
+    response = requests.post(url, headers=headers, params=params, timeout=10)
 
     response.raise_for_status()
     return response.json()
@@ -45,25 +74,16 @@ def extract_activity_timestamps(data):
     }
 
 
-def build_headers(access_token, client_id):
-    """
-    Build the header required by Simkl API
-    """
-
-    return {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {access_token}",
-        "simkl-api-key": client_id,
-    }
-
-
 def fetch_all_items(access_token, client_id):
     """
     Fetch all items data from Simkl
     """
 
+    headers = simkl_request_headers(access_token)
+    params = simkl_url_parameters(client_id)
+
     url = f"{API_URL}/sync/all-items"
-    response = requests.get(url, headers=build_headers(access_token, client_id), timeout=10)
+    response = requests.get(url, headers=headers, params=params, timeout=10)
 
     response.raise_for_status()
     return response.json()
@@ -112,8 +132,11 @@ def save_json_data(data, file_name):
 def fetch_details(simkl_id, media_type, access_token, client_id):
     """Fetch detail about missing item"""
 
+    headers = simkl_request_headers(access_token)
+    params = simkl_url_parameters(client_id)
+
     url = f"{API_URL}/{media_type}/{simkl_id}"
-    response = requests.get(url, headers=build_headers(access_token, client_id), timeout=10)
+    response = requests.get(url, headers=headers, params=params, timeout=10)
 
     if response.status_code == 404:
         return {
@@ -249,9 +272,18 @@ def main():
         load_dotenv(".env")
 
     client_id = os.getenv("CLIENT_ID")
-    access_token = os.getenv("ACCESS_TOKEN")
-    if not client_id or not access_token:
+    refresh_token = os.getenv("REFRESH_TOKEN")
+
+    if not client_id or not refresh_token:
         print("Missing required Tokens. Existing...")
+        sys.exit(1)
+
+    print("Requesting new Simkl access token...")
+    refresh_data = get_refresh_token(client_id, refresh_token)
+    access_token = refresh_data.get("access_token")
+
+    if not access_token:
+        print("Failed to obtain access token. Exiting...")
         sys.exit(1)
 
     simkl_id_file = os.path.join("data", "simkl_ids.json")
